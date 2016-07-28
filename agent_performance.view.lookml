@@ -108,11 +108,23 @@
     label: 'Total Not Ready Time'
     type: sum
     sql: ${TABLE}.not_ready_time
+    
+  - measure: not_ready_percent
+    label: 'Not Ready %'
+    type: number
+    sql: 100.00 * ${total_not_ready} / ${total_agent_logon_time}
+    value_format: '0.0'    
 
   - measure: total_ready
     label: 'Total Ready Time'
     type: sum
     sql: ${TABLE}.total_ready_time
+    
+  - measure: ready_percent
+    label: 'Ready %'
+    type: number
+    sql: 100.00 * ${total_ready} / ${total_agent_logon_time}
+    value_format: '0.0'  
   
   - measure: graded_interactions
     label: 'Graded Interactions'
@@ -138,6 +150,17 @@
     type: sum
     sql: (${TABLE}.total_busy_time_in + ${TABLE}.total_acw_time_in)
     
+  - measure: average_handling_time_inbound
+    label: 'Average Handling Time Inbound (seconds)'
+    type: number
+    sql: ${total_handling_time_inbound} / ${num_calls_handled}
+    
+  - measure: average_handling_time_inbound_formatted
+    label: 'Average Handling Time (inbound)'
+    type: number
+    sql: cast(${average_handling_time_inbound} as decimal(10,6))/86400
+    value_format: '[h]:mm:ss'   
+    
   - measure: num_calls_made
     label: 'Number of Calls Made'
     type: sum
@@ -147,6 +170,17 @@
     label: 'Total Handling Time (outbound)'
     type: sum
     sql: (${TABLE}.total_busy_time_out + ${TABLE}.total_acw_time_out)
+  
+  - measure: average_handling_time_outbound
+    label: 'Average Handling Time Outbound (seconds)'
+    type: number
+    sql: ${total_handling_time_outbound} / ${num_calls_made}
+    
+  - measure: average_handling_time_outbound_formatted
+    label: 'Average Handling Time (outbound)'
+    type: number
+    sql: cast(${average_handling_time_outbound} as decimal(10,6))/86400
+    value_format: '[h]:mm:ss' 
   
   - measure: calls_not_answered
     label: 'Calls Not Answered'
@@ -186,7 +220,14 @@
   - measure: total_ringing_time
     label: 'Total Ringing Time'
     type: sum
-    sql: (${TABLE}.total_ringing_time_in + ${TABLE}.total_ringing_time_out)  
+    sql: (${TABLE}.total_ringing_time_in + ${TABLE}.total_ringing_time_out)
+    
+  - measure: occupancy
+    label: 'Occupancy'
+    type: number
+    sql: 100.00 * (${total_handling_time_inbound} + ${total_handling_time_outbound}) / ${total_agent_working_time}
+    value_format: '0.0'
+  
   
   - measure: number_of_surveys
     label: 'Number of Surveys'
