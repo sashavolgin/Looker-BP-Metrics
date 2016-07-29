@@ -77,55 +77,152 @@
     type: sum
     sql: ${TABLE}.num_calls_in_service_level   # also used for emails replied in service level
     
+  - measure: service_level
+    label: 'Service Level'
+    type: number
+    sql: 100.00 * ${answered_in_sl} / (${number_of_calls_answered} + ${abandoned_after_threshold})
+    value_format: '0.0'
+  
   - measure: self_service
     label: 'Self Service'
     type: sum
-    sql: ${TABLE}.num_calls_self_service   
+    sql: ${TABLE}.num_calls_self_service
     
+  - measure: self_service_percent
+    label: 'Self Service %'
+    type: number
+    sql: 100.00 * ${self_service} / ${number_of_calls_received}
+    value_format: '0.0'
+  
   - measure: abandoned_in_ivr
     label: 'Abandoned in IVR'
     type: sum
     sql: ${TABLE}.num_calls_abandoned_in_ivr  
+  
+  - measure: abandoned_in_ivr_percent
+    label: 'Abandoned in IVR %'
+    type: number
+    sql: 100.00 * ${abandoned_in_ivr} / ${number_of_calls_received}
+    value_format: '0.0'
     
   - measure: queued
     label: 'Queued'
     type: sum
-    sql: ${TABLE}.num_calls_queued  
+    sql: ${TABLE}.num_calls_queued
+    
+  - measure: queued_percent
+    label: 'Queued %'
+    type: number
+    sql: 100.00 * ${queued} / ${number_of_calls_received}
+    value_format: '0.0'  
     
   - measure: abandoned_after_threshold
-    label: 'Abandoned'
+    label: 'Abandoned in Queue'
     type: sum
     sql: ${TABLE}.num_calls_abandoned_after_threshold
+    
+  - measure: abandoned_after_threshold_percent
+    label: 'Abandoned in Queue %'
+    type: number
+    sql: 100.00 * ${abandoned_after_threshold} / ${number_of_calls_received}
+    value_format: '0.0'  
+    
+  - measure: short_abandoned
+    label: 'Short Abandoned'
+    type: sum
+    sql: (${TABLE}.num_calls_abandoned - ${TABLE}.num_calls_abandoned_after_threshold)
+    
+  - measure: short_abandoned_percent
+    label: 'Short Abandoned %'
+    type: number
+    sql: 100.00 * ${short_abandoned} / ${number_of_calls_received}
+    value_format: '0.0'   
     
   - measure: total_abandonment_time_after_threshold
     label: 'Total Abandonment Time'
     type: sum
     sql: ${TABLE}.abandonment_time_after_threshold
     
+  - measure: average_abandonment_time_after_threshold
+    label: 'Average Abandonment Time (seconds)'
+    type: number
+    sql: ${total_abandonment_time_after_threshold} / ${abandoned_after_threshold}
+    
+  - measure: average_abandonment_time_formatted
+    label: 'Average Abandonment Time'
+    type: number
+    sql: cast(${average_abandonment_time_after_threshold} as decimal(10,6))/86400
+    value_format: '[h]:mm:ss'  
+    
   - measure: overflow
     label: 'Overflow'
     type: sum
     sql: ${TABLE}.num_overflow_calls   
-    
+  
+  - measure: overflow_percent
+    label: 'Overflow %'
+    type: number
+    sql: 100.00 * ${overflow} / ${number_of_calls_received}
+    value_format: '0.0'   
+  
   - measure: number_of_calls_answered
     label: 'Answered'
     type: sum
     sql: ${TABLE}.num_calls_answered  
-    
+  
+  - measure: answered_percent
+    label: 'Answered %'
+    type: number
+    sql: 100.00 * ${number_of_calls_answered} / ${number_of_calls_received}
+    value_format: '0.0'   
+  
   - measure: total_answer_time
     label: 'Total Answer Time'
     type: sum
     sql: ${TABLE}.answer_time  
+  
+  - measure: average_speed_of_answer
+    label: 'Average Speed of Answer (seconds)'
+    type: number
+    sql: ${total_answer_time} / ${number_of_calls_answered}
+    
+  - measure: average_speed_of_answer_formatted
+    label: 'Average Speed of Answer'
+    type: number
+    sql: cast(${average_speed_of_answer} as decimal(10,6))/86400
+    value_format: '[h]:mm:ss' 
     
   - measure: total_handling_time_inbound
     label: 'Total Handling Time (inbound)'
     type: sum
-    sql: (${TABLE}.busy_time_in + ${TABLE}.acw_time_in)  
+    sql: (${TABLE}.busy_time_in + ${TABLE}.acw_time_in)
+    
+  - measure: average_handling_time_inbound
+    label: 'Average Handling Time Inbound (seconds)'
+    type: number
+    sql: ${total_handling_time_inbound} / ${number_of_calls_answered}
+    
+  - measure: average_handling_time_inbound_formatted
+    label: 'Average Handling Time (inbound)'
+    type: number
+    sql: cast(${average_handling_time_inbound} as decimal(10,6))/86400
+    value_format: '[h]:mm:ss'   
     
   - measure: total_talk_time_inbound
     label: 'Total Talk Time (inbound)'
     type: sum
     sql: (${TABLE}.busy_time_in - ${TABLE}.hold_time_in)
+    
+  - measure: average_talk_time_inbound
+    label: 'Average Talk Time Inbound (seconds)'
+    type: number
+    sql: ${total_talk_time_inbound} / ${number_of_calls_answered}
+    
+  - measure: average_talk_time_inbound_formatted
+    label: 'Average Talk Time (inbound)'
+    type: number
+    sql: cast(${average_talk_time_inbound} as decimal(10,6))/86400
+    value_format: '[h]:mm:ss'    
     
   - measure: total_hold_time_inbound
     label: 'Total Hold Time (inbound)'
@@ -136,11 +233,33 @@
     label: 'Number of Calls Held'
     type: sum
     sql: ${TABLE}.num_calls_held  
+  
+  - measure: average_hold_time_inbound
+    label: 'Average Hold Time Inbound (seconds)'
+    type: number
+    sql: ${total_hold_time_inbound} / ${number_of_calls_held}
+    
+  - measure: average_hold_time_inbound_formatted
+    label: 'Average Hold Time (inbound)'
+    type: number
+    sql: cast(${average_hold_time_inbound} as decimal(10,6))/86400
+    value_format: '[h]:mm:ss'  
     
   - measure: total_acw_time_inbound
     label: 'Total Wrap-up Time (inbound)'
     type: sum
-    sql: ${TABLE}.acw_time_in  
+    sql: ${TABLE}.acw_time_in 
+    
+  - measure: average_acw_time_inbound
+    label: 'Average ACW Time Inbound (seconds)'
+    type: number
+    sql: ${total_acw_time_inbound} / ${number_of_calls_answered}
+    
+  - measure: average_acw_time_inbound_formatted
+    label: 'Average ACW Time (inbound)'
+    type: number
+    sql: cast(${average_acw_time_inbound} as decimal(10,6))/86400
+    value_format: '[h]:mm:ss'    
     
   - measure: number_of_calls_made 
     label: 'Number of Calls Made'
@@ -156,11 +275,33 @@
     label: 'Total Handling Time (outbound)'
     type: sum
     sql: (${TABLE}.busy_time_out + ${TABLE}.acw_time_out)  
+  
+  - measure: average_handling_time_outbound
+    label: 'Average Handling Time Outbound (seconds)'
+    type: number
+    sql: ${total_handling_time_outbound} / ${number_of_calls_made_and_answered}
+    
+  - measure: average_handling_time_outbound_formatted
+    label: 'Average Handling Time (outbound)'
+    type: number
+    sql: cast(${average_handling_time_outbound} as decimal(10,6))/86400
+    value_format: '[h]:mm:ss'  
     
   - measure: total_talk_time_outbound
     label: 'Total Talk Time (outbound)'
     type: sum
     sql: (${TABLE}.busy_time_out - ${TABLE}.hold_time_out)
+    
+  - measure: average_talk_time_outbound
+    label: 'Average Talk Time Outbound (seconds)'
+    type: number
+    sql: ${total_talk_time_outbound} / ${number_of_calls_made_and_answered}
+    
+  - measure: average_talk_time_outbound_formatted
+    label: 'Average Talk Time (outbound)'
+    type: number
+    sql: cast(${average_talk_time_outbound} as decimal(10,6))/86400
+    value_format: '[h]:mm:ss'   
     
   - measure: total_hold_time_outbound
     label: 'Total Hold Time (outbound)'
@@ -171,6 +312,17 @@
     label: 'Total Wrap-up Time (outbound)'
     type: sum
     sql: ${TABLE}.acw_time_out
+    
+  - measure: average_acw_time_outbound
+    label: 'Average ACW Time Outbound (seconds)'
+    type: number
+    sql: ${total_acw_time_outbound} / ${number_of_calls_made_and_answered}
+    
+  - measure: average_acw_time_outbound_formatted
+    label: 'Average ACW Time (outbound)'
+    type: number
+    sql: cast(${average_acw_time_outbound} as decimal(10,6))/86400
+    value_format: '[h]:mm:ss'   
     
   - measure: number_of_surveys
     label: 'Number of Surveys'
@@ -224,7 +376,13 @@
   - measure: campaign_dialed
     label: 'Campaign Dialed'
     type: sum
-    sql: ${TABLE}.campaign_calls_attempted  
+    sql: ${TABLE}.campaign_calls_attempted
+    
+  - measure: campaign_average_success_rate
+    label: 'ASR %'
+    type: number
+    sql: 100.00 * ${campaign_answered} / ${campaign_dialed}
+    value_format: '0.0'   
     
   - measure: campaign_queued
     label: 'Campaign Queued'
@@ -263,27 +421,82 @@
   - measure: campaign_total_connection_time
     label: 'Campaign Total Connection Time'
     type: sum
-    sql: ${TABLE}.campaign_answer_time   
+    sql: ${TABLE}.campaign_answer_time
+    
+  - measure: campaign_average_connection_time
+    label: 'Avg Connection Time'
+    type: number
+    sql: ${campaign_total_connection_time} / ${campaign_handled}  
     
   - measure: campaign_total_handle_time
     label: 'Campaign Total Handling Time'
     type: sum
     sql: (${TABLE}.campaign_talk_time + ${TABLE}.campaign_hold_time + ${TABLE}.campaign_acw_time)
     
+  - measure: campaign_average_handling_time
+    label: 'Campaign Avg Handle Time (seconds)'
+    type: number
+    sql: ${campaign_total_handle_time} / ${campaign_handled}
+    
+  - measure: campaign_average_handling_time_formatted
+    label: 'Campaign Avg Handle Time'
+    type: number
+    sql: cast(${campaign_average_handling_time} as decimal(10,6))/86400
+    value_format: '[h]:mm:ss' 
+  
+  
   - measure: campaign_total_talk_time
     label: 'Campaign Total Talk Time'
     type: sum
     sql: ${TABLE}.campaign_talk_time
+    
+  - measure: campaign_average_talk_time
+    label: 'Campaign Avg Talk Time (seconds)'
+    type: number
+    sql: ${campaign_total_talk_time} / ${campaign_handled}
+    
+  - measure: campaign_average_talk_time_formatted
+    label: 'Campaign Avg Talk Time'
+    type: number
+    sql: cast(${campaign_average_talk_time} as decimal(10,6))/86400
+    value_format: '[h]:mm:ss' 
+    
+  - measure: campaign_held
+    label: 'Campaign Held'
+    type: sum
+    sql: ${TABLE}.campaign_calls_held
     
   - measure: campaign_total_hold_time
     label: 'Campaign Total Hold Time'
     type: sum
     sql: ${TABLE}.campaign_hold_time
     
+  - measure: campaign_average_hold_time
+    label: 'Campaign Avg Hold Time (seconds)'
+    type: number
+    sql: ${campaign_total_hold_time} / ${campaign_held}
+    
+  - measure: campaign_average_hold_time_formatted
+    label: 'Campaign Avg Hold Time'
+    type: number
+    sql: cast(${campaign_average_hold_time} as decimal(10,6))/86400
+    value_format: '[h]:mm:ss'  
+    
   - measure: campaign_total_acw_time
     label: 'Campaign Total ACW Time'
     type: sum
     sql: ${TABLE}.campaign_acw_time
+    
+  - measure: campaign_average_acw_time
+    label: 'Campaign Avg ACW Time (seconds)'
+    type: number
+    sql: ${campaign_total_acw_time} / ${campaign_handled}
+    
+  - measure: campaign_average_acw_time_formatted
+    label: 'Campaign Avg ACW Time'
+    type: number
+    sql: cast(${campaign_average_acw_time} as decimal(10,6))/86400
+    value_format: '[h]:mm:ss'  
     
   - measure: campaign_preview_records_viewed
     label: 'Campaign Preview Records Viewed'
@@ -293,7 +506,18 @@
   - measure: campaign_total_preview_time
     label: 'Campaign Total Preview Time'
     type: sum
-    sql: ${TABLE}.campaign_preview_time   
+    sql: ${TABLE}.campaign_preview_time
+    
+  - measure: campaign_average_preview_time
+    label: 'Campaign Avg Preview Time (seconds)'
+    type: number
+    sql: ${campaign_total_preview_time} / ${campaign_preview_records_viewed}
+    
+  - measure: campaign_average_preview_time_formatted
+    label: 'Campaign Avg Preview Time'
+    type: number
+    sql: cast(${campaign_average_preview_time} as decimal(10,6))/86400
+    value_format: '[h]:mm:ss'    
 
 
   # This section contains measures that appear in the Email Service Report
@@ -348,12 +572,17 @@
     type: sum
     sql: ${TABLE}.num_emails_replied_by_agent
     
-  - measure: replied_in_sl  
+  - measure: emails_replied_in_sl  
     label: 'Emails Replied in SL'
     type: sum
-    sql: ${TABLE}.num_calls_in_service_level   
-      
+    sql: ${TABLE}.num_calls_in_service_level
     
+  - measure: emails_replied_in_sl_percent
+    label: 'Emails Replied in SL %'
+    type: number
+    sql: 100.00 * ${emails_replied_in_sl} / ${emails_processed_replied}
+    value_format: '0.0'  
+  
   - measure: emails_processed_total
     label: 'Emails Processed Total'
     type: sum
@@ -369,10 +598,21 @@
     type: sum
     sql: ${TABLE}.num_calls_outbound  # also used for outbound emails sent
   
-  - measure: total_email_reply_time
-    label: 'Total Email Reply Time'
+  - measure: emails_total_reply_time
+    label: 'Emails Total Reply Time'
     type: sum
     sql: ${TABLE}.email_reply_time
+    
+  - measure: emails_average_reply_time
+    label: 'Emails Avg Reply Time (seconds)'
+    type: number
+    sql: ${emails_total_reply_time} / ${emails_processed_replied}
+    
+  - measure: emails_average_reply_time_formatted
+    label: 'Emails Avg Reply Time'
+    type: number
+    sql: cast(${emails_average_reply_time} as decimal(10,6))/86400
+    value_format: '[h]:mm:ss'  
 
 
 
