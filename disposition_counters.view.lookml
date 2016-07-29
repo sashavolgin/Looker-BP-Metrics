@@ -50,17 +50,21 @@
     sql: ${TABLE}.media_type
 
 
-  # Measures for the Disposition in Time Report
+  # Measures for the Disposition in Time Report 
+  # (for percentage create a calculation against the total value in the explore)
   
-  - measure: interactions
-    label: 'Interactions'
+  - measure: dispositioned_interactions
+    label: 'Dispositioned Interactions'
     type: sum
     sql: (${TABLE}.num_campaign_calls + ${TABLE}.num_non_campaign_calls_inbound + ${TABLE}.num_non_campaign_calls_outbound + ${TABLE}.num_preview_items)
-
-  - measure: campaign_records
-    label: 'Campaign Records'
+  
+  
+  - measure: dispositioned_campaign_records
+    label: 'Dispositioned Campaign Records'
     type: sum
     sql: ${TABLE}.num_records_completed
+
+
 
   #- dimension: id
   #  primary_key: true

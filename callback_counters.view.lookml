@@ -39,6 +39,12 @@
     label: 'Callbacks Requested'
     type: sum
     sql: ${TABLE}.num_callbacks_requested
+    
+  - measure: callbacks_requested_percent
+    label: 'Callbacks Requested %'
+    type: number
+    sql: 100.00 * ${callbacks_requested} / ${calls_queued}
+    value_format: '0.0'    
   
   - measure: callbacks_attempted
     label: 'Callbacks Attempted'
@@ -49,36 +55,86 @@
     label: 'Callbacks Busy'
     type: sum
     sql: ${TABLE}.num_callbacks_busy
+    
+  - measure: callbacks_busy_percent
+    label: 'Callbacks Busy %'
+    type: number
+    sql: 100.00 * ${callbacks_busy} / ${callbacks_requested}
+    value_format: '0.0'    
   
   - measure: callbacks_no_answer
     label: 'Callbacks No Answer'
     type: sum
     sql: ${TABLE}.num_callbacks_no_answer
+    
+  - measure: callbacks_no_answer_percent
+    label: 'Callbacks No Answer %'
+    type: number
+    sql: 100.00 * ${callbacks_no_answer} / ${callbacks_requested}
+    value_format: '0.0'    
   
   - measure: callbacks_answered
     label: 'Callbacks Answered'
     type: sum
     sql: ${TABLE}.num_callbacks_answered
+    
+  - measure: callbacks_answered_percent
+    label: 'Callbacks Answered %'
+    type: number
+    sql: 100.00 * ${callbacks_answered} / ${callbacks_requested}
+    value_format: '0.0'    
   
   - measure: callbacks_abandoned
     label: 'Callbacks Abandoned'
     type: sum
     sql: ${TABLE}.num_callbacks_abandoned
+    
+  - measure: callbacks_abandoned_percent
+    label: 'Callbacks Abandoned %'
+    type: number
+    sql: 100.00 * ${callbacks_abandoned} / ${callbacks_requested}
+    value_format: '0.0'
+    
+  - measure: callbacks_handled
+    label: 'Callbacks Handled'
+    type: sum
+    sql: ${TABLE}.num_callbacks_handled  
   
   - measure: total_wait_time_to_callback
     label: 'Total Wait Time to Callback'
     type: sum
     sql: ${TABLE}.callback_wait_time
     
+  - measure: average_wait_time_to_callback
+    label: 'Avg Wait Time to Callback (seconds)'
+    type: number
+    sql: ${total_wait_time_to_callback} / ${callbacks_attempted}
+    
+  - measure: average_wait_time_to_callback_formatted
+    label: 'Avg Wait Time to Callback'
+    type: number
+    sql: cast(${average_wait_time_to_callback} as decimal(10,6))/86400
+    value_format: '[h]:mm:ss'  
+    
   - measure: total_callback_dialing_time
     label: 'Total Callback Dialing Time'
     type: sum
     sql: ${TABLE}.callback_customer_answer_time 
     
+  - measure: average_callback_dialing_time
+    label: 'Avg Callback Dialing Time'
+    type: number
+    sql: ${total_callback_dialing_time} / ${callbacks_answered}
+      
   - measure: total_agent_answer_time
     label: 'Total Agent Answer Time'
     type: sum
     sql: ${TABLE}.callback_agent_answer_time
+    
+  - measure: average_agent_answer_time
+    label: 'Avg Agent Answer Time'
+    type: number
+    sql: ${total_agent_answer_time} / ${callbacks_handled}  
   
   
   
